@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Ventas - Gaming Store</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e;
+            color: #fff;
+        }
+        .navbar {
+            background-color: #27272a;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .navbar a {
+            color: #ff8c00;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 4px;
+            background-color: #38383d;
+            transition: background-color 0.3s ease;
+        }
+        .navbar a:hover {
+            background-color: #57575d;
+        }
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background-color: #2a2a2e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        form input, form select, form button {
+            width: calc(100% - 20px);
+            margin-bottom: 15px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #38383d;
+            color: #fff;
+            font-size: 16px;
+        }
+        form input::placeholder, form select::placeholder {
+            color: #b5b5b5;
+        }
+        form button {
+            background-color: #ff8c00;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #e07b00;
+        }
+        h1, h2 {
+            color: #ff8c00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #2a2a2e;
+        }
+        table, th, td {
+            border: 1px solid #38383d;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            color: #fff;
+        }
+        th {
+            background-color: #38383d;
+            color: #ff8c00;
+        }
+        button {
+            background-color: #ff8c00;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #e07b00;
+        }
+        #recibo {
+            display: none;
+            margin: auto;
+            padding: 20px;
+            max-width: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #2a2a2e;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        #recibo h2 {
+            color: #ff8c00;
+        }
+        #recibo p {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Dashboard</a>
+        <a href="productos_form.html">Gestionar Productos</a>
+        <a href="usuarios.html">Gestionar Usuarios</a>
+        <a href="ventas.html">Gestionar Ventas</a>
+    </div>
+    <div class="content">
+        <h1>Formulario de Ventas</h1>
+        <form id="ventaForm">
+            <input type="hidden" id="ventaId" name="id">
+            <label for="Productos_id">Producto</label>
+            <select id="Productos_id" name="Productos_id" required>
+                <!-- Opciones de productos se llenarán aquí -->
+            </select>
+            <label for="cantidad">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" required>
+            <label for="precio">Precio</label>
+            <input type="number" id="precio" name="precio" required>
+            <button type="submit">Guardar Venta</button>
+        </form>
+        <h2>Lista de Ventas</h2>
+        <table id="ventasTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se llenarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <div id="recibo">
+        <h2>Recibo de Compra</h2>
+        <p><strong>ID:</strong> <span id="reciboId"></span></p>
+        <p><strong>Producto:</strong> <span id="reciboProducto"></span></p>
+        <p><strong>Cantidad:</strong> <span id="reciboCantidad"></span></p>
+        <p><strong>Precio:</strong> <span id="reciboPrecio"></span></p>
+        <button onclick="printRecibo()">Imprimir Recibo</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('ventaForm');
+            const tableBody = document.querySelector('#ventasTable tbody');
+            const productoSelect = document.getElementById('Productos_id');
+            const recibo = document.getElementById('recibo');
+
+            // Cargar productos
+            function loadProductos() {
+                fetch('productos.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        productoSelect.innerHTML = '';
+                        data.forEach(producto => {
+                            const option = document.createElement('option');
+                            option.value = producto.id;
+                            option.textContent = producto.nombreP;
+                            productoSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            loadProductos();
+
+            // Cargar ventas
+            function loadVentas() {
+                fetch('ventas.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        tableBody.innerHTML = '';
+                        data.forEach(venta => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${venta.id}</td>
+                                <td>${venta.Productos_id}</td>
+                                <td>${venta.cantidad}</td>
+                                <td>${venta.precio}</td>
+                                <td>
+                                    <button onclick="editVenta(${venta.id})">Editar</button>
+                                    <button onclick="deleteVenta(${venta.id})">Eliminar</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            loadVentas();
+
+            // Guardar o actualizar venta
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const id = document.getElementById('ventaId').value;
+                const Productos_id = document.getElementById('Productos_id').value;
+                const cantidad = document.getElementById('cantidad').value;
+                const precio = document.getElementById('precio').value;
+
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `ventas.php?id=${id}` : 'ventas.php';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ Productos_id, cantidad, precio }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadVentas();
+                    form.reset();
+                    generateRecibo(data.id, Productos_id, cantidad, precio); // Generar recibo
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Generar recibo de compra
+        function generateRecibo(id, productoId, cantidad, precio) {
+            // Aquí deberías buscar el nombre del producto usando `productoId`, pero por simplicidad usaremos el ID directamente.
+            document.getElementById('reciboId').textContent = id;
+            document.getElementById('reciboProducto').textContent = productoId; // Deberías mapear esto al nombre del producto.
+            document.getElementById('reciboCantidad').textContent = cantidad;
+            document.getElementById('reciboPrecio').textContent = precio;
+
+            document.getElementById('recibo').style.display = 'block';
+        }
+
+        // Imprimir recibo
+        function printRecibo() {
+            const originalContents = document.body.innerHTML;
+            const reciboContents = document.getElementById('recibo').innerHTML;
+            document.body.innerHTML = reciboContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+
+        // Editar venta
+        function editVenta(id) {
+            fetch(`ventas.php?id=${id}`)
+                .then(response => response.json())
+                .then(venta => {
+                    document.getElementById('ventaId').value = venta.id;
+                    document.getElementById('Productos_id').value = venta.Productos_id;
+                    document.getElementById('cantidad').value = venta.cantidad;
+                    document.getElementById('precio').value = venta.precio;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Eliminar venta
+        function deleteVenta(id) {
+            fetch(`ventas.php?id=${id}`, {
+                method: 'DELETE',
+            })
+            .then(() => {
+                loadVentas();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

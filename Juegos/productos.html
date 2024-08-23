@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Productos - Gaming Store</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e;
+            color: #fff;
+        }
+        .navbar {
+            background-color: #27272a;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .navbar a {
+            color: #ff8c00;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 4px;
+            background-color: #38383d;
+            transition: background-color 0.3s ease;
+        }
+        .navbar a:hover {
+            background-color: #57575d;
+        }
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background-color: #2a2a2e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        form input, form select, form button {
+            width: calc(100% - 20px);
+            margin-bottom: 15px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #38383d;
+            color: #fff;
+            font-size: 16px;
+        }
+        form button {
+            background-color: #ff8c00;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #e07b00;
+        }
+        h1, h2 {
+            color: #ff8c00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #2a2a2e;
+        }
+        table, th, td {
+            border: 1px solid #38383d;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            color: #fff;
+        }
+        th {
+            background-color: #38383d;
+            color: #ff8c00;
+        }
+        button {
+            background-color: #ff8c00;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #e07b00;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Dashboard</a>
+        <a href="productos_form.html">Gestionar Productos</a>
+    </div>
+    <div class="content">
+        <h1>Formulario de Productos</h1>
+        <form id="productoForm">
+            <input type="hidden" id="productoId" name="id">
+            <label for="nombreP">Nombre del Producto</label>
+            <input type="text" id="nombreP" name="nombreP" required>
+            <label for="precio">Precio</label>
+            <input type="number" id="precio" name="precio" required>
+            <label for="CategoriaProductos_id">Categoría</label>
+            <select id="CategoriaProductos_id" name="CategoriaProductos_id" required>
+                <!-- Opciones de categorías se llenarán aquí -->
+            </select>
+            <button type="submit">Guardar Producto</button>
+        </form>
+        <h2>Lista de Productos</h2>
+        <table id="productosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se llenarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('productoForm');
+            const tableBody = document.querySelector('#productosTable tbody');
+            const categoriaSelect = document.getElementById('CategoriaProductos_id');
+
+            // Cargar categorías
+            function loadCategorias() {
+                fetch('categorias.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        categoriaSelect.innerHTML = '';
+                        data.forEach(categoria => {
+                            const option = document.createElement('option');
+                            option.value = categoria.id;
+                            option.textContent = categoria.nombreCategoria;
+                            categoriaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            loadCategorias();
+
+            // Cargar productos
+            function loadProductos() {
+                fetch('productos.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        tableBody.innerHTML = '';
+                        data.forEach(producto => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${producto.id}</td>
+                                <td>${producto.nombreP}</td>
+                                <td>${producto.precio}</td>
+                                <td>${producto.CategoriaProductos_id}</td>
+                                <td>
+                                    <button onclick="editProducto(${producto.id})">Editar</button>
+                                    <button onclick="deleteProducto(${producto.id})">Eliminar</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            loadProductos();
+
+            // Guardar o actualizar producto
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const id = document.getElementById('productoId').value;
+                const nombreP = document.getElementById('nombreP').value;
+                const precio = document.getElementById('precio').value;
+                const CategoriaProductos_id = document.getElementById('CategoriaProductos_id').value;
+
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `productos.php?id=${id}` : 'productos.php';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nombreP, precio, CategoriaProductos_id }),
+                })
+                .then(response => response.json())
+                .then(() => {
+                    loadProductos();
+                    form.reset();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Editar producto
+        function editProducto(id) {
+            fetch(`productos.php?id=${id}`)
+                .then(response => response.json())
+                .then(producto => {
+                    document.getElementById('productoId').value = producto.id;
+                    document.getElementById('nombreP').value = producto.nombreP;
+                    document.getElementById('precio').value = producto.precio;
+                    document.getElementById('CategoriaProductos_id').value = producto.CategoriaProductos_id;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Eliminar producto
+        function deleteProducto(id) {
+            fetch(`productos.php?id=${id}`, {
+                method: 'DELETE',
+            })
+            .then(() => {
+                loadProductos();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

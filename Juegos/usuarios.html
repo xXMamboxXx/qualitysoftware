@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Usuarios - Gaming Store</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e;
+            color: #fff;
+        }
+        .navbar {
+            background-color: #27272a;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .navbar a {
+            color: #ff8c00;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 4px;
+            background-color: #38383d;
+            transition: background-color 0.3s ease;
+        }
+        .navbar a:hover {
+            background-color: #57575d;
+        }
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background-color: #2a2a2e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        form input, form select, form button {
+            width: calc(100% - 20px);
+            margin-bottom: 15px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #38383d;
+            color: #fff;
+            font-size: 16px;
+        }
+        form input::placeholder, form select::placeholder {
+            color: #b5b5b5;
+        }
+        form button {
+            background-color: #ff8c00;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #e07b00;
+        }
+        h1, h2 {
+            color: #ff8c00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #2a2a2e;
+        }
+        table, th, td {
+            border: 1px solid #38383d;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            color: #fff;
+        }
+        th {
+            background-color: #38383d;
+            color: #ff8c00;
+        }
+        button {
+            background-color: #ff8c00;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #e07b00;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Dashboard</a>
+        <a href="productos_form.html">Gestionar Productos</a>
+        <a href="usuarios.html">Gestionar Usuarios</a>
+    </div>
+    <div class="content">
+        <h1>Formulario de Usuarios</h1>
+        <form id="usuarioForm">
+            <input type="hidden" id="usuarioId" name="id">
+            <label for="nombreC">Nombre Completo</label>
+            <input type="text" id="nombreC" name="nombreC" placeholder="Nombre Completo" required>
+            <label for="Roles_id">Rol</label>
+            <select id="Roles_id" name="Roles_id" required>
+                <!-- Opciones de roles se llenarán aquí -->
+            </select>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Correo Electrónico" required>
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" placeholder="Contraseña" required>
+            <button type="submit">Guardar Usuario</button>
+        </form>
+        <h2>Lista de Usuarios</h2>
+        <table id="usuariosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Rol</th>
+                    <th>Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se llenarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('usuarioForm');
+            const tableBody = document.querySelector('#usuariosTable tbody');
+            const rolSelect = document.getElementById('Roles_id');
+
+            // Cargar roles
+            function loadRoles() {
+                fetch('roles.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        rolSelect.innerHTML = '';
+                        data.forEach(rol => {
+                            const option = document.createElement('option');
+                            option.value = rol.id;
+                            option.textContent = rol.nombre;
+                            rolSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            loadRoles();
+
+            // Cargar usuarios
+            function loadUsuarios() {
+                fetch('usuarios.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        tableBody.innerHTML = '';
+                        data.forEach(usuario => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${usuario.id}</td>
+                                <td>${usuario.nombreC}</td>
+                                <td>${usuario.Roles_id}</td>
+                                <td>${usuario.email}</td>
+                                <td>
+                                    <button onclick="editUsuario(${usuario.id})">Editar</button>
+                                    <button onclick="deleteUsuario(${usuario.id})">Eliminar</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            loadUsuarios();
+
+            // Guardar o actualizar usuario
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const id = document.getElementById('usuarioId').value;
+                const nombreC = document.getElementById('nombreC').value;
+                const Roles_id = document.getElementById('Roles_id').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `usuarios.php?id=${id}` : 'usuarios.php';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nombreC, Roles_id, email, password }),
+                })
+                .then(response => response.json())
+                .then(() => {
+                    loadUsuarios();
+                    form.reset();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Editar usuario
+        function editUsuario(id) {
+            fetch(`usuarios.php?id=${id}`)
+                .then(response => response.json())
+                .then(usuario => {
+                    document.getElementById('usuarioId').value = usuario.id;
+                    document.getElementById('nombreC').value = usuario.nombreC;
+                    document.getElementById('Roles_id').value = usuario.Roles_id;
+                    document.getElementById('email').value = usuario.email;
+                    document.getElementById('password').value = ''; // No mostrar contraseña actual por seguridad
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Eliminar usuario
+        function deleteUsuario(id) {
+            fetch(`usuarios.php?id=${id}`, {
+                method: 'DELETE',
+            })
+            .then(() => {
+                loadUsuarios();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

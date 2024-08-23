@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - Gaming Store</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1c1c1e;
+            color: #fff;
+        }
+        .login-container {
+            background: #2a2a2e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 350px;
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #ff8c00;
+            font-size: 24px;
+        }
+        .login-container input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #38383d;
+            color: #fff;
+            font-size: 16px;
+        }
+        .login-container input::placeholder {
+            color: #b5b5b5;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff8c00;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-container button:hover {
+            background-color: #e07b00;
+        }
+        .login-container a {
+            color: #ff8c00;
+            display: block;
+            margin-top: 15px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form action="index.html">
+            <input type="text" placeholder="Nombre de Usuario" required>
+            <input type="password" placeholder="Contraseña" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <a href="#">¿Olvidaste tu contraseña?</a>
+        <a href="#">Crear una cuenta nueva</a>
+    </div>
+</body>
+</html>

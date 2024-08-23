@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Store Dashboard</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e;
+            color: #fff;
+        }
+        .navbar {
+            background-color: #27272a;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 4px;
+            background-color: #38383d;
+            transition: background-color 0.3s ease;
+        }
+        .navbar a:hover {
+            background-color: #57575d;
+        }
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #ff8c00;
+        }
+        p {
+            color: #d1d1d1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #2a2a2e;
+        }
+        table, th, td {
+            border: 1px solid #38383d;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            color: #fff;
+        }
+        th {
+            background-color: #38383d;
+            color: #ff8c00;
+        }
+        .table-header {
+            background-color: #ff8c00;
+            color: #1c1c1e;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="catalogo.html">Catálogo de Juegos</a>
+        <a href="usuarios.html">Jugadores</a>
+        <a href="ventas.html">Historial de Compras</a>
+    </div>
+    <div class="content">
+        <h1>Bienvenido a Gaming Store Dashboard</h1>
+        <p>Administra y explora los juegos, jugadores y las ventas más recientes.</p>
+        <h2>Juegos Disponibles</h2>
+        <table id="productosTable">
+            <thead>
+                <tr>
+                    <th class="table-header">ID</th>
+                    <th class="table-header">Título</th>
+                    <th class="table-header">Precio</th>
+                    <th class="table-header">Género</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se llenarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('juegos.php')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#productosTable tbody');
+                    data.forEach(juego => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${juego.id}</td>
+                            <td>${juego.titulo}</td>
+                            <td>${juego.precio}</td>
+                            <td>${juego.genero}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
